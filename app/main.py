@@ -2,7 +2,7 @@ import hmac, os, base64, json
 from fastapi import FastAPI, Request, HTTPException
 from google.cloud import pubsub_v1
 from app.gmail import decode_pubsub_message, fetch_message_by_id, normalize_gmail_message
-from app.outlook import graph_token, get_message, normalize_outlook_message
+# from app.outlook import graph_token, get_message, normalize_outlook_message
 from app.schemas import NormalizedEmail
 
 app = FastAPI()
@@ -47,20 +47,20 @@ async def gmail_webhook(request: Request):
     return {"ok": True}
 
 # Outlook webhook endpoint
-@app.post("/outlook/webhook")
-async def outlook_webhook(request: Request):
-    # Graph validation handshake uses validationToken query param, must echo raw text.
-    token = request.query_params.get("validationToken")
-    if token:
-        return token
-    payload = await request.json()
-    access = graph_token()
-    for n in payload.get("value", []):
-        # resourceData.id is the message id
-        rid = n.get("resourceData", {}).get("id")
-        user = os.environ["OUTLOOK_USER_ID"]
-        if rid:
-            msg = get_message(user, rid, access)
-            event = NormalizedEmail(**normalize_outlook_message(msg))
-            publish_event(event)
-    return {"ok": True}
+# @app.post("/outlook/webhook")
+# async def outlook_webhook(request: Request):
+#     # Graph validation handshake uses validationToken query param, must echo raw text.
+#     token = request.query_params.get("validationToken")
+#     if token:
+#         return token
+#     payload = await request.json()
+#     access = graph_token()
+#     for n in payload.get("value", []):
+#         # resourceData.id is the message id
+#         rid = n.get("resourceData", {}).get("id")
+#         user = os.environ["OUTLOOK_USER_ID"]
+#         if rid:
+#             msg = get_message(user, rid, access)
+#             event = NormalizedEmail(**normalize_outlook_message(msg))
+#             publish_event(event)
+#     return {"ok": True}
